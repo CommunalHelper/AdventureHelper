@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.Entities;
+using Celeste.Mod.Helpers;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
@@ -93,6 +94,9 @@ namespace Celeste.Mod.AdventureHelper.Entities {
         }
 
         public override void Render() {
+            if (!CullHelper.IsRectangleVisible(X, Y, Width, Height))
+                return;
+            
             Vector2 position = Position;
             Position += Shake;
             Draw.Rect(X, Y, Width, Height, Color.Black);
@@ -339,8 +343,11 @@ namespace Celeste.Mod.AdventureHelper.Entities {
             }
 
             public override void Render() {
-                DrawCogs(Vector2.UnitY, new Color?(Color.Black));
-                DrawCogs(Vector2.Zero, null);
+                if (Utils.IsLineVisible(from, to)) {
+                    DrawCogs(Vector2.UnitY, Color.Black);
+                    DrawCogs(Vector2.Zero);
+                }
+
                 Draw.Rect(new Rectangle((int)(TargetZip.X - 1f), (int)(TargetZip.Y - 1f), (int)TargetZip.Width + 2, (int)TargetZip.Height + 2), Color.Black);
             }
 
@@ -349,17 +356,17 @@ namespace Celeste.Mod.AdventureHelper.Entities {
                 Vector2 value = vector.Perpendicular() * 3f;
                 Vector2 value2 = -vector.Perpendicular() * 4f;
                 float rotation = TargetZip.percent * 3.14159274f * 2f;
-                Draw.Line(from + value + offset, to + value + offset, (colorOverride != null) ? colorOverride.Value : TargetZip.ropeColor);
-                Draw.Line(from + value2 + offset, to + value2 + offset, (colorOverride != null) ? colorOverride.Value : TargetZip.ropeColor);
+                Draw.Line(from + value + offset, to + value + offset, colorOverride ?? TargetZip.ropeColor);
+                Draw.Line(from + value2 + offset, to + value2 + offset, colorOverride ?? TargetZip.ropeColor);
                 for (float num = 4f - (TargetZip.percent * 3.14159274f * 8f % 4f); num < (to - from).Length(); num += 4f) {
                     Vector2 value3 = from + value + vector.Perpendicular() + (vector * num);
                     Vector2 value4 = to + value2 - (vector * num);
-                    Draw.Line(value3 + offset, value3 + (vector * 2f) + offset, (colorOverride != null) ? colorOverride.Value : TargetZip.ropeLightColor);
-                    Draw.Line(value4 + offset, value4 - (vector * 2f) + offset, (colorOverride != null) ? colorOverride.Value : TargetZip.ropeLightColor);
+                    Draw.Line(value3 + offset, value3 + (vector * 2f) + offset, colorOverride ?? TargetZip.ropeLightColor);
+                    Draw.Line(value4 + offset, value4 - (vector * 2f) + offset, colorOverride ?? TargetZip.ropeLightColor);
                 }
 
-                cog.DrawCentered(from + offset, (colorOverride != null) ? colorOverride.Value : Color.White, 1f, rotation);
-                cog.DrawCentered(to + offset, (colorOverride != null) ? colorOverride.Value : Color.White, 1f, rotation);
+                cog.DrawCentered(from + offset, colorOverride ?? Color.White, 1f, rotation);
+                cog.DrawCentered(to + offset, colorOverride ?? Color.White, 1f, rotation);
             }
         }
     }
